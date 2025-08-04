@@ -155,7 +155,7 @@ export function ChatSidebar({ selectedConversationId, onSelectConversation }: Ch
     <Sidebar className="w-64 border-r border-sidebar-border bg-sidebar">
       <SidebarHeader className="p-4">
         <div className="flex items-center justify-between">
-          <h2 className="text-lg font-semibold">ChatGPT Clone</h2>
+          <h2 className="text-lg font-semibold">FHUB - GPT 1.0</h2>
           <SidebarTrigger />
         </div>
         

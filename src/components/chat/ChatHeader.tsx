@@ -14,7 +14,7 @@ export function ChatHeader() {
       <div className="flex items-center justify-between h-full px-4">
         <div className="flex items-center gap-4">
           <SidebarTrigger />
-          <h1 className="text-lg font-semibold">ChatGPT Clone</h1>
+          <h1 className="text-lg font-semibold">FHUB - GPT 1.0</h1>
         </div>
         
         <div className="flex items-center gap-2">
