@@ -4,8 +4,10 @@ import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { Card } from '@/components/ui/card';
 import { MessageList } from './MessageList';
+import { TokenDisplay } from './TokenDisplay';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
+import { useAuth } from '@/hooks/useAuth';
 
 interface Message {
   id: string;
@@ -26,8 +28,11 @@ export function ChatArea({ conversationId, onConversationCreated }: ChatAreaProp
   const [isLoading, setIsLoading] = useState(false);
   const [selectedImage, setSelectedImage] = useState<File | null>(null);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
+  const [userTokens, setUserTokens] = useState<number>(0);
+  const [messageCost, setMessageCost] = useState<number>(0.5);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const { toast } = useToast();
+  const { user } = useAuth();
 
   useEffect(() => {
     if (conversationId) {
@@ -35,7 +40,41 @@ export function ChatArea({ conversationId, onConversationCreated }: ChatAreaProp
     } else {
       setMessages([]);
     }
-  }, [conversationId]);
+    loadUserTokens();
+    loadSystemSettings();
+  }, [conversationId, user]);
+
+  const loadUserTokens = async () => {
+    if (!user) return;
+    
+    try {
+      const { data, error } = await supabase
+        .from('profiles')
+        .select('tokens')
+        .eq('user_id', user.id)
+        .single();
+
+      if (error) throw error;
+      setUserTokens(data?.tokens || 0);
+    } catch (error) {
+      console.error('Error loading tokens:', error);
+    }
+  };
+
+  const loadSystemSettings = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('system_settings')
+        .select('setting_value')
+        .eq('setting_key', 'message_cost_tokens')
+        .single();
+
+      if (error) throw error;
+      setMessageCost(parseFloat(data?.setting_value || '0.5'));
+    } catch (error) {
+      console.error('Error loading settings:', error);
+    }
+  };
 
   const loadMessages = async () => {
     if (!conversationId) return;
@@ -103,6 +142,16 @@ export function ChatArea({ conversationId, onConversationCreated }: ChatAreaProp
 
   const sendMessage = async () => {
     if (!inputValue.trim() && !selectedImage) return;
+
+    // Check if user has enough tokens
+    if (userTokens < messageCost) {
+      toast({
+        title: "Tokens insuficientes",
+        description: "Você não tem tokens suficientes para enviar mensagens. Faça uma recarga.",
+        variant: "destructive",
+      });
+      return;
+    }
 
     setIsLoading(true);
     try {
@@ -183,6 +232,26 @@ export function ChatArea({ conversationId, onConversationCreated }: ChatAreaProp
           .eq('id', currentConversationId);
       }
 
+      // Debit tokens from user
+      const newTokenBalance = userTokens - messageCost;
+      await supabase
+        .from('profiles')
+        .update({ tokens: newTokenBalance })
+        .eq('user_id', user!.id);
+
+      // Record token transaction
+      await supabase
+        .from('token_transactions')
+        .insert({
+          user_id: user!.id,
+          amount: messageCost,
+          transaction_type: 'debit',
+          description: 'Mensagem enviada no chat'
+        });
+
+      // Update local token state
+      setUserTokens(newTokenBalance);
+
     } catch (error: any) {
       console.error('Error sending message:', error);
       toast({
@@ -216,6 +285,7 @@ export function ChatArea({ conversationId, onConversationCreated }: ChatAreaProp
 
   return (
     <div className="flex-1 flex flex-col">
+      <TokenDisplay />
       <div className="flex-1 overflow-hidden">
         <MessageList messages={messages} isLoading={isLoading} />
       </div>
@@ -273,7 +343,7 @@ export function ChatArea({ conversationId, onConversationCreated }: ChatAreaProp
 
             <Button
               onClick={sendMessage}
-              disabled={isLoading || (!inputValue.trim() && !selectedImage)}
+              disabled={isLoading || (!inputValue.trim() && !selectedImage) || userTokens < messageCost}
               size="sm"
               className="px-3"
             >

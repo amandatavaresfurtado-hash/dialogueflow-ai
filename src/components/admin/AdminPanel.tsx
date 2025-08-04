@@ -4,6 +4,8 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { UserX } from 'lucide-react';
 import { ConversationsManager } from './ConversationsManager';
 import { UsersManager } from './UsersManager';
+import { TokensManager } from './TokensManager';
+import { SystemSettings } from './SystemSettings';
 
 export function AdminPanel() {
   const { isAdmin } = useProfile();
@@ -36,9 +38,11 @@ export function AdminPanel() {
       </div>
 
       <Tabs defaultValue="users" className="space-y-6">
-        <TabsList className="grid w-full grid-cols-2">
+        <TabsList className="grid w-full grid-cols-4">
           <TabsTrigger value="users">Usuários</TabsTrigger>
           <TabsTrigger value="conversations">Conversas</TabsTrigger>
+          <TabsTrigger value="tokens">Tokens</TabsTrigger>
+          <TabsTrigger value="settings">Configurações</TabsTrigger>
         </TabsList>
         
         <TabsContent value="users">
@@ -47,6 +51,14 @@ export function AdminPanel() {
         
         <TabsContent value="conversations">
           <ConversationsManager />
+        </TabsContent>
+        
+        <TabsContent value="tokens">
+          <TokensManager />
+        </TabsContent>
+        
+        <TabsContent value="settings">
+          <SystemSettings />
         </TabsContent>
       </Tabs>
     </div>

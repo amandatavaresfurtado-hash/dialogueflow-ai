@@ -190,10 +190,6 @@ npm run preview
 
 ## 📞 Suporte
 
-### Credenciais de Admin Padrão
-- **Email**: lisboa.codes@gmail.com
-- **Senha**: 102424!@#
-
 ### Estrutura de Arquivos
 ```
 src/
