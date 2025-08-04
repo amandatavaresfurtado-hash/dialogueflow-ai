@@ -61,6 +61,13 @@ export default {
 					'accent-foreground': 'hsl(var(--sidebar-accent-foreground))',
 					border: 'hsl(var(--sidebar-border))',
 					ring: 'hsl(var(--sidebar-ring))'
+				},
+				chat: {
+					background: 'hsl(var(--chat-background))',
+					'message-user': 'hsl(var(--chat-message-user))',
+					'message-assistant': 'hsl(var(--chat-message-assistant))',
+					sidebar: 'hsl(var(--chat-sidebar))',
+					hover: 'hsl(var(--chat-hover))'
 				}
 			},
 			borderRadius: {
