@@ -51,7 +51,10 @@ export function ChatArea({ conversationId, onConversationCreated }: ChatAreaProp
       return;
     }
 
-    setMessages(data || []);
+    setMessages((data || []).map(msg => ({
+      ...msg,
+      role: msg.role as 'user' | 'assistant'
+    })));
   };
 
   const createConversationIfNeeded = async () => {
@@ -123,7 +126,10 @@ export function ChatArea({ conversationId, onConversationCreated }: ChatAreaProp
 
       if (userMsgError) throw userMsgError;
 
-      setMessages(prev => [...prev, userMsgData]);
+      setMessages(prev => [...prev, {
+        ...userMsgData,
+        role: userMsgData.role as 'user' | 'assistant'
+      }]);
       setInputValue('');
       setSelectedImage(null);
       setImagePreview(null);
@@ -160,7 +166,10 @@ export function ChatArea({ conversationId, onConversationCreated }: ChatAreaProp
 
       if (assistantMsgError) throw assistantMsgError;
 
-      setMessages(prev => [...prev, assistantMsgData]);
+      setMessages(prev => [...prev, {
+        ...assistantMsgData,
+        role: assistantMsgData.role as 'user' | 'assistant'
+      }]);
 
       // Update conversation title if it's the first message
       if (messages.length === 0) {
