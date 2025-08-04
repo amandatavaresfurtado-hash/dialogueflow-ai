@@ -1,73 +1,233 @@
-# Welcome to your Lovable project
+# FHUB - GPT 1.0
 
-## Project info
+Sistema de chat com IA baseado em GPT, com funcionalidades administrativas completas e gestão de usuários.
 
-**URL**: https://lovable.dev/projects/3de32ffe-00ad-446e-8ca2-9044c8e2a5b3
+## 📋 Sobre o Sistema
 
-## How can I edit this code?
+FHUB - GPT 1.0 é uma aplicação web moderna que oferece:
+- Chat com IA (GPT-4o-mini) com histórico de conversas
+- Sistema de autenticação seguro
+- Painel administrativo completo para gestão de usuários e conversas
+- Interface responsiva e amigável
 
-There are several ways of editing your application.
+## 🛠️ Tecnologias Utilizadas
 
-**Use Lovable**
+### Frontend
+- **React 18.3.1** - Biblioteca JavaScript para interface
+- **TypeScript** - Tipagem estática
+- **Vite** - Build tool e servidor de desenvolvimento
+- **Tailwind CSS** - Framework CSS utility-first
+- **Shadcn/ui** - Componentes UI reutilizáveis
+- **React Router DOM** - Roteamento
+- **React Hook Form** - Gerenciamento de formulários
+- **Tanstack Query** - Gerenciamento de estado servidor
 
-Simply visit the [Lovable Project](https://lovable.dev/projects/3de32ffe-00ad-446e-8ca2-9044c8e2a5b3) and start prompting.
+### Backend/Banco de Dados
+- **Supabase** - Backend as a Service
+  - PostgreSQL como banco de dados
+  - Autenticação integrada
+  - Row Level Security (RLS)
+  - Edge Functions
+  - Storage para arquivos
 
-Changes made via Lovable will be committed automatically to this repo.
+### APIs Externas
+- **OpenAI API** - Integração com GPT-4o-mini
 
-**Use your preferred IDE**
+## 🏗️ Arquitetura do Banco de Dados
 
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
+### Tabelas Principais
 
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
+#### `profiles`
+- Armazena informações dos usuários
+- Campos: id, user_id, email, full_name, role, is_active, created_at, updated_at
+- RLS habilitado para segurança
 
-Follow these steps:
+#### `conversations`
+- Histórico de conversas dos usuários
+- Campos: id, user_id, title, created_at, updated_at
+- Relacionado ao usuário via user_id
 
-```sh
-# Step 1: Clone the repository using the project's Git URL.
-git clone <YOUR_GIT_URL>
+#### `messages`
+- Mensagens individuais das conversas
+- Campos: id, conversation_id, role, content, image_url, created_at
+- Relacionado à conversa via conversation_id
 
-# Step 2: Navigate to the project directory.
-cd <YOUR_PROJECT_NAME>
+### Funções do Banco
+- `handle_new_user()` - Cria perfil automaticamente ao registrar usuário
+- `has_role()` - Verifica permissões de usuário
+- `is_user_active()` - Verifica se usuário está ativo
+- `update_updated_at_column()` - Atualiza timestamp automaticamente
 
-# Step 3: Install the necessary dependencies.
-npm i
+## 📦 Instalação
 
-# Step 4: Start the development server with auto-reloading and an instant preview.
+### Pré-requisitos
+- Node.js (versão 18 ou superior)
+- npm ou yarn
+- Conta no Supabase
+- Chave da API OpenAI
+
+### 1. Clonar o Repositório
+```bash
+git clone <URL_DO_REPOSITORIO>
+cd fhub-gpt
+```
+
+### 2. Instalar Dependências
+```bash
+npm install
+```
+
+### 3. Configuração do Ambiente
+
+O sistema já vem configurado com as credenciais do Supabase integradas. Você precisará apenas configurar:
+
+#### Secrets no Supabase (Edge Functions)
+Acesse o painel do Supabase e configure os seguintes secrets:
+- `OPENAI_API_KEY` - Sua chave da API OpenAI
+
+### 4. Executar em Desenvolvimento
+```bash
 npm run dev
 ```
 
-**Edit a file directly in GitHub**
+A aplicação estará disponível em `http://localhost:5173`
 
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
+## 🚀 Deploy/Hospedagem
 
-**Use GitHub Codespaces**
+### Opções Recomendadas de Hospedagem
 
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
+#### 1. **Vercel** (Recomendado)
+- Deploy automático via Git
+- Configuração zero
+- CDN global
+- SSL automático
 
-## What technologies are used for this project?
+```bash
+# Instalar Vercel CLI
+npm i -g vercel
 
-This project is built with:
+# Deploy
+vercel
+```
 
-- Vite
-- TypeScript
-- React
-- shadcn-ui
-- Tailwind CSS
+#### 2. **Netlify**
+- Build automático
+- CDN integrado
+- Formulários e funções serverless
 
-## How can I deploy this project?
+#### 3. **Render**
+- Deploy gratuito
+- Builds automáticos
+- SSL incluído
 
-Simply open [Lovable](https://lovable.dev/projects/3de32ffe-00ad-446e-8ca2-9044c8e2a5b3) and click on Share -> Publish.
+#### 4. **Railway**
+- Deploy simples
+- Escalabilidade automática
 
-## Can I connect a custom domain to my Lovable project?
+### Configuração de Build
+```bash
+# Build de produção
+npm run build
 
-Yes, you can!
+# Preview local do build
+npm run preview
+```
 
-To connect a domain, navigate to Project > Settings > Domains and click Connect Domain.
+## 👨‍💼 Funcionalidades Administrativas
 
-Read more here: [Setting up a custom domain](https://docs.lovable.dev/tips-tricks/custom-domain#step-by-step-guide)
+### Gestão de Usuários
+- ✅ Criar usuários manualmente
+- ✅ Editar informações (nome, email, papel, status)
+- ✅ Ativar/desativar usuários
+- ✅ Promover/rebaixar administradores
+- ✅ Excluir usuários
+- ✅ Visualizar estatísticas
+
+### Gestão de Conversas
+- ✅ Visualizar todas as conversas
+- ✅ Ler mensagens completas
+- ✅ Editar títulos das conversas
+- ✅ Excluir conversas (com todas as mensagens)
+- ✅ Filtros e ordenação
+
+## 🔐 Sistema de Autenticação
+
+### Tipos de Usuário
+- **user** - Usuário comum (pode usar o chat)
+- **admin** - Administrador (acesso total ao sistema)
+
+### Segurança
+- Row Level Security (RLS) habilitado
+- Políticas de acesso granulares
+- Senhas criptografadas via Supabase Auth
+- Sessões seguras com tokens JWT
+
+## 📱 Como Usar
+
+### Para Usuários
+1. Registre-se ou faça login
+2. Aguarde ativação por um administrador
+3. Use o chat para conversar com a IA
+4. Suas conversas ficam salvas no histórico
+
+### Para Administradores
+1. Acesse `/admin` após fazer login
+2. Gerencie usuários na aba "Usuários"
+3. Gerencie conversas na aba "Conversas"
+4. Ative novos usuários conforme necessário
+
+## 🔧 Manutenção
+
+### Logs e Monitoramento
+- Logs do Edge Function disponíveis no Supabase
+- Console do navegador para debug frontend
+- Métricas de uso no painel Supabase
+
+### Backup
+- Dados armazenados no PostgreSQL (Supabase)
+- Backup automático do Supabase
+- Exporte dados via SQL se necessário
+
+## 📞 Suporte
+
+### Credenciais de Admin Padrão
+- **Email**: lisboa.codes@gmail.com
+- **Senha**: 102424!@#
+
+### Estrutura de Arquivos
+```
+src/
+├── components/
+│   ├── admin/          # Painel administrativo
+│   ├── auth/           # Autenticação
+│   ├── chat/           # Interface do chat
+│   ├── layout/         # Layouts
+│   └── ui/             # Componentes UI
+├── hooks/              # Custom hooks
+├── integrations/       # Integrações (Supabase)
+├── lib/                # Utilitários
+└── pages/              # Páginas
+```
+
+### Comandos Úteis
+```bash
+# Desenvolvimento
+npm run dev
+
+# Build
+npm run build
+
+# Lint
+npm run lint
+
+# Preview build
+npm run preview
+```
+
+## 📄 Licença
+
+Este projeto é propriedade privada. Todos os direitos reservados.
+
+---
+
+**Desenvolvido com ❤️ usando React, TypeScript, Supabase e OpenAI**
