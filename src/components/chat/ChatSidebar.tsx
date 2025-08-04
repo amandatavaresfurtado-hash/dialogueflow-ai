@@ -64,7 +64,10 @@ export function ChatSidebar({ selectedConversationId, onSelectConversation }: Ch
   const createNewConversation = async () => {
     const { data, error } = await supabase
       .from('conversations')
-      .insert([{ title: 'Nova conversa' }])
+      .insert([{ 
+        title: 'Nova conversa',
+        user_id: (await supabase.auth.getUser()).data.user?.id 
+      }])
       .select()
       .single();
 
