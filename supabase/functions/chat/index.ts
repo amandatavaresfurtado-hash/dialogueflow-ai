@@ -1,10 +1,10 @@
-import { serve } from "https://deno.land/std@0.168.0/http/server.ts"
-import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.39.3'
+import "https://deno.land/x/xhr@0.1.0/mod.ts";
+import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
-}
+};
 
 interface ChatMessage {
   role: 'user' | 'assistant' | 'system';
@@ -66,7 +66,7 @@ serve(async (req) => {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        model: 'gpt-4-vision-preview',
+        model: 'gpt-4o-mini',
         messages: openaiMessages,
         max_tokens: 1000,
         temperature: 0.7,
@@ -85,9 +85,9 @@ serve(async (req) => {
       throw new Error('No response from OpenAI')
     }
 
-    return new Response(assistantMessage, {
-      headers: { ...corsHeaders, 'Content-Type': 'text/plain' },
-    })
+    return new Response(JSON.stringify(assistantMessage), {
+      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+    });
 
   } catch (error) {
     console.error('Error:', error)
