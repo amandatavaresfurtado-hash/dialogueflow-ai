@@ -1,6 +1,5 @@
 
 import { AdminPanel } from '@/components/admin/AdminPanel';
-import { CreateAdminForm } from '@/components/auth/CreateAdminForm';
 import { useProfile } from '@/hooks/useProfile';
 import { useAuth } from '@/hooks/useAuth';
 import { Card, CardContent } from '@/components/ui/card';
@@ -29,12 +28,21 @@ const Admin = () => {
     );
   }
 
-  // If not logged in, show admin creation form
+  // If not logged in, redirect to login
   if (!user) {
-    console.log('Admin: No user logged in, showing create admin form');
+    console.log('Admin: No user logged in, access denied');
     return (
       <div className="min-h-screen flex items-center justify-center p-4">
-        <CreateAdminForm />
+        <Card>
+          <CardContent className="p-6">
+            <div className="text-center">
+              <h2 className="text-lg font-semibold mb-2">Acesso Negado</h2>
+              <p className="text-muted-foreground">
+                Você precisa estar logado para acessar esta página.
+              </p>
+            </div>
+          </CardContent>
+        </Card>
       </div>
     );
   }
