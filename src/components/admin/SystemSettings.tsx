@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
-import { Settings, DollarSign, MessageSquare, Key } from 'lucide-react';
+import { Settings, DollarSign, MessageSquare, Key, Eye, EyeOff } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 
 interface SystemSetting {
@@ -16,6 +16,7 @@ interface SystemSetting {
 export function SystemSettings() {
   const [settings, setSettings] = useState<Record<string, string>>({});
   const [loading, setLoading] = useState(true);
+  const [showApiKey, setShowApiKey] = useState(true);
   const { toast } = useToast();
 
   useEffect(() => {
@@ -222,13 +223,27 @@ export function SystemSettings() {
           <div>
             <Label htmlFor="api-key">Chave da API OpenAI</Label>
             <div className="flex gap-2">
-              <Input
-                id="api-key"
-                type="text"
-                value={settings.openai_api_key || ''}
-                onChange={(e) => handleInputChange('openai_api_key', e.target.value)}
-                placeholder="sk-..."
-              />
+              <div className="relative flex-1">
+                <Input
+                  id="api-key"
+                  type={showApiKey ? "text" : "password"}
+                  value={settings.openai_api_key || ''}
+                  onChange={(e) => handleInputChange('openai_api_key', e.target.value)}
+                />
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="sm"
+                  className="absolute right-2 top-1/2 -translate-y-1/2 h-auto p-1"
+                  onClick={() => setShowApiKey(!showApiKey)}
+                >
+                  {showApiKey ? (
+                    <EyeOff className="h-4 w-4" />
+                  ) : (
+                    <Eye className="h-4 w-4" />
+                  )}
+                </Button>
+              </div>
               <Button 
                 onClick={() => updateSetting('openai_api_key', settings.openai_api_key)}
               >
