@@ -60,7 +60,7 @@ export function useProfile() {
   console.log('useProfile: Current state:', {
     profileExists: !!profile,
     role: profile?.role,
-    isActive: profile?.is_active,
+    profileIsActive: profile?.is_active,
     isAdmin,
     isActive: isActive
   });
