@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Badge } from '@/components/ui/badge';
-import { Coins, Plus, History } from 'lucide-react';
+import { Coins, Plus, History, Edit3, Save, X } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 
@@ -34,6 +34,8 @@ export function TokensManager() {
   const [selectedUserId, setSelectedUserId] = useState<string>('');
   const [tokenAmount, setTokenAmount] = useState<string>('');
   const [description, setDescription] = useState<string>('');
+  const [editingUserId, setEditingUserId] = useState<string>('');
+  const [editingTokens, setEditingTokens] = useState<string>('');
   const { toast } = useToast();
 
   useEffect(() => {
@@ -132,6 +134,70 @@ export function TokensManager() {
     }
   };
 
+  const startEditing = (user: UserProfile) => {
+    setEditingUserId(user.user_id);
+    setEditingTokens(user.tokens.toString());
+  };
+
+  const cancelEditing = () => {
+    setEditingUserId('');
+    setEditingTokens('');
+  };
+
+  const saveTokenEdit = async (userId: string, currentTokens: number) => {
+    if (!editingTokens) {
+      toast({
+        title: "Erro",
+        description: "Informe a quantidade de tokens",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    try {
+      const newAmount = parseFloat(editingTokens);
+      const difference = newAmount - currentTokens;
+
+      // Update user tokens
+      const { error: updateError } = await supabase
+        .from('profiles')
+        .update({ tokens: newAmount })
+        .eq('user_id', userId);
+
+      if (updateError) throw updateError;
+
+      // Record transaction if there's a difference
+      if (difference !== 0) {
+        const { error: transactionError } = await supabase
+          .from('token_transactions')
+          .insert({
+            user_id: userId,
+            amount: Math.abs(difference),
+            transaction_type: difference > 0 ? 'credit' : 'debit',
+            description: `Tokens ajustados pelo admin: ${difference > 0 ? '+' : ''}${difference}`
+          });
+
+        if (transactionError) throw transactionError;
+      }
+
+      toast({
+        title: "Sucesso",
+        description: "Tokens atualizados com sucesso",
+      });
+
+      setEditingUserId('');
+      setEditingTokens('');
+      loadData();
+    } catch (error) {
+      console.error('Error updating tokens:', error);
+      toast({
+        title: "Erro",
+        description: "Erro ao atualizar tokens",
+        variant: "destructive",
+      });
+    }
+  };
+
   if (loading) {
     return <div>Carregando...</div>;
   }
@@ -192,14 +258,14 @@ export function TokensManager() {
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <Coins className="h-5 w-5" />
-            Usuários e Tokens
+            Editar Tokens dos Usuários
           </CardTitle>
         </CardHeader>
         <CardContent>
           <div className="space-y-3">
             {users.map((user) => (
               <div key={user.id} className="flex items-center justify-between p-3 border rounded-lg">
-                <div>
+                <div className="flex-1">
                   <p className="font-medium">{user.email}</p>
                   <p className="text-sm text-muted-foreground">{user.full_name}</p>
                 </div>
@@ -207,9 +273,43 @@ export function TokensManager() {
                   <Badge variant={user.is_active ? "default" : "secondary"}>
                     {user.is_active ? "Ativo" : "Inativo"}
                   </Badge>
-                  <Badge variant="outline">
-                    {user.tokens} tokens
-                  </Badge>
+                  {editingUserId === user.user_id ? (
+                    <div className="flex items-center gap-2">
+                      <Input
+                        type="number"
+                        step="0.1"
+                        value={editingTokens}
+                        onChange={(e) => setEditingTokens(e.target.value)}
+                        className="w-20"
+                      />
+                      <Button
+                        size="sm"
+                        onClick={() => saveTokenEdit(user.user_id, user.tokens)}
+                      >
+                        <Save className="h-4 w-4" />
+                      </Button>
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        onClick={cancelEditing}
+                      >
+                        <X className="h-4 w-4" />
+                      </Button>
+                    </div>
+                  ) : (
+                    <div className="flex items-center gap-2">
+                      <Badge variant="outline">
+                        {user.tokens} tokens
+                      </Badge>
+                      <Button
+                        size="sm"
+                        variant="ghost"
+                        onClick={() => startEditing(user)}
+                      >
+                        <Edit3 className="h-4 w-4" />
+                      </Button>
+                    </div>
+                  )}
                 </div>
               </div>
             ))}

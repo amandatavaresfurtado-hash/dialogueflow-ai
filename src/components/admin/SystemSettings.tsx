@@ -98,23 +98,44 @@ export function SystemSettings() {
         </CardHeader>
         <CardContent className="space-y-4">
           <div>
-            <Label htmlFor="message-cost">Custo por Mensagem (em tokens)</Label>
-            <div className="flex gap-2">
-              <Input
-                id="message-cost"
-                type="number"
-                step="0.1"
-                value={settings.message_cost_tokens || '0.5'}
-                onChange={(e) => handleInputChange('message_cost_tokens', e.target.value)}
-              />
+            <Label>Configuração de Custo de Mensagens</Label>
+            <div className="grid grid-cols-2 gap-4 mt-2">
+              <div>
+                <Label htmlFor="token-amount">Quantidade de Tokens</Label>
+                <Input
+                  id="token-amount"
+                  type="number"
+                  step="0.1"
+                  value={settings.token_cost_amount || '1'}
+                  onChange={(e) => handleInputChange('token_cost_amount', e.target.value)}
+                  placeholder="1.0"
+                />
+              </div>
+              <div>
+                <Label htmlFor="message-amount">Quantidade de Mensagens</Label>
+                <Input
+                  id="message-amount"
+                  type="number"
+                  step="1"
+                  value={settings.message_cost_amount || '2'}
+                  onChange={(e) => handleInputChange('message_cost_amount', e.target.value)}
+                  placeholder="2"
+                />
+              </div>
+            </div>
+            <div className="flex gap-2 mt-2">
               <Button 
-                onClick={() => updateSetting('message_cost_tokens', settings.message_cost_tokens)}
+                onClick={() => {
+                  updateSetting('token_cost_amount', settings.token_cost_amount);
+                  updateSetting('message_cost_amount', settings.message_cost_amount);
+                }}
+                className="w-full"
               >
-                Salvar
+                Salvar Configuração
               </Button>
             </div>
             <p className="text-sm text-muted-foreground mt-1">
-              Exemplo: 0.5 tokens = 2 mensagens por token
+              Exemplo: {settings.token_cost_amount || '1'} token(s) = {settings.message_cost_amount || '2'} mensagem(ns)
             </p>
           </div>
         </CardContent>
@@ -203,19 +224,19 @@ export function SystemSettings() {
             <div className="flex gap-2">
               <Input
                 id="api-key"
-                type="password"
-                value={settings.openai_api_key_display || ''}
-                onChange={(e) => handleInputChange('openai_api_key_display', e.target.value)}
+                type="text"
+                value={settings.openai_api_key || ''}
+                onChange={(e) => handleInputChange('openai_api_key', e.target.value)}
                 placeholder="sk-..."
               />
               <Button 
-                onClick={() => updateSetting('openai_api_key_display', settings.openai_api_key_display)}
+                onClick={() => updateSetting('openai_api_key', settings.openai_api_key)}
               >
                 Salvar
               </Button>
             </div>
             <p className="text-sm text-muted-foreground mt-1">
-              Esta é apenas para visualização. A chave real está configurada nos secrets do Supabase.
+              Chave da API OpenAI real. Alterações têm efeito imediato.
             </p>
           </div>
         </CardContent>
