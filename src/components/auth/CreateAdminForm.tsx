@@ -1,3 +1,4 @@
+
 import { useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
@@ -15,6 +16,8 @@ export function CreateAdminForm() {
     setCreating(true);
     
     try {
+      console.log('Checking if admin user already exists...');
+      
       // First check if admin user already exists
       const { data: existingProfile } = await supabase
         .from('profiles')
@@ -23,13 +26,35 @@ export function CreateAdminForm() {
         .single();
 
       if (existingProfile) {
+        console.log('Admin user already exists:', existingProfile);
+        
+        // Update existing user to be admin and active
+        const { error: updateError } = await supabase
+          .from('profiles')
+          .update({ 
+            role: 'admin',
+            is_active: true 
+          })
+          .eq('email', 'lisboa.codes@gmail.com');
+
+        if (updateError) {
+          console.error('Error updating existing admin profile:', updateError);
+          toast({
+            title: 'Erro',
+            description: 'Erro ao atualizar permissões do usuário existente.',
+            variant: 'destructive',
+          });
+          return;
+        }
+
         toast({
-          title: 'Usuário já existe',
-          description: 'O usuário administrador já foi criado anteriormente.',
-          variant: 'destructive',
+          title: 'Sucesso',
+          description: 'Permissões de administrador atualizadas! Faça login novamente.',
         });
         return;
       }
+
+      console.log('Creating new admin user...');
 
       // Create the admin user via auth
       const { data, error } = await supabase.auth.signUp({
@@ -53,22 +78,55 @@ export function CreateAdminForm() {
         return;
       }
 
-      if (data.user) {
-        // Wait a moment for the trigger to create the profile
-        setTimeout(async () => {
-          // Update the profile to be admin and active
-          const { error: updateError } = await supabase
-            .from('profiles')
-            .update({ 
-              role: 'admin',
-              is_active: true 
-            })
-            .eq('user_id', data.user.id);
+      console.log('Admin user created:', data.user);
 
-          if (updateError) {
-            console.error('Error updating admin profile:', updateError);
+      if (data.user) {
+        // Wait for the profile to be created by the trigger, then update it
+        let attempts = 0;
+        const maxAttempts = 10;
+        
+        const updateProfile = async () => {
+          attempts++;
+          console.log(`Attempt ${attempts} to update admin profile...`);
+          
+          const { data: profile, error: fetchError } = await supabase
+            .from('profiles')
+            .select('*')
+            .eq('user_id', data.user.id)
+            .single();
+
+          if (fetchError && fetchError.code !== 'PGRST116') {
+            console.error('Error fetching profile:', fetchError);
+            if (attempts < maxAttempts) {
+              setTimeout(updateProfile, 1000);
+              return;
+            }
           }
-        }, 1000);
+
+          if (profile) {
+            console.log('Profile found, updating to admin:', profile);
+            
+            const { error: updateError } = await supabase
+              .from('profiles')
+              .update({ 
+                role: 'admin',
+                is_active: true 
+              })
+              .eq('user_id', data.user.id);
+
+            if (updateError) {
+              console.error('Error updating admin profile:', updateError);
+            } else {
+              console.log('Profile successfully updated to admin');
+            }
+          } else if (attempts < maxAttempts) {
+            console.log('Profile not found yet, retrying...');
+            setTimeout(updateProfile, 1000);
+          }
+        };
+
+        // Start the update process
+        setTimeout(updateProfile, 1000);
 
         toast({
           title: 'Sucesso',
@@ -118,7 +176,7 @@ export function CreateAdminForm() {
               Criando...
             </>
           ) : (
-            'Criar Usuário Admin'
+            'Criar/Atualizar Usuário Admin'
           )}
         </Button>
       </CardContent>

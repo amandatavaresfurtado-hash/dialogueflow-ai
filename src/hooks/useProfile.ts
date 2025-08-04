@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from './useAuth';
@@ -20,10 +21,13 @@ export function useProfile() {
 
   useEffect(() => {
     if (!user) {
+      console.log('useProfile: No user found');
       setProfile(null);
       setLoading(false);
       return;
     }
+
+    console.log('useProfile: User found, fetching profile for user:', user.id);
 
     const fetchProfile = async () => {
       try {
@@ -38,6 +42,7 @@ export function useProfile() {
           return;
         }
 
+        console.log('useProfile: Profile fetched:', data);
         setProfile(data);
       } catch (error) {
         console.error('Error fetching profile:', error);
@@ -51,6 +56,14 @@ export function useProfile() {
 
   const isAdmin = profile?.role === 'admin';
   const isActive = profile?.is_active === true;
+
+  console.log('useProfile: Current state:', {
+    profileExists: !!profile,
+    role: profile?.role,
+    isActive: profile?.is_active,
+    isAdmin,
+    isActive: isActive
+  });
 
   return {
     profile,
