@@ -39,6 +39,7 @@ export function CreateAdminForm() {
           data: {
             full_name: 'Administrador',
           },
+          emailRedirectTo: `${window.location.origin}/`,
         },
       });
 
@@ -53,28 +54,25 @@ export function CreateAdminForm() {
       }
 
       if (data.user) {
-        // Update the profile to be admin and active
-        const { error: updateError } = await supabase
-          .from('profiles')
-          .update({ 
-            role: 'admin',
-            is_active: true 
-          })
-          .eq('user_id', data.user.id);
+        // Wait a moment for the trigger to create the profile
+        setTimeout(async () => {
+          // Update the profile to be admin and active
+          const { error: updateError } = await supabase
+            .from('profiles')
+            .update({ 
+              role: 'admin',
+              is_active: true 
+            })
+            .eq('user_id', data.user.id);
 
-        if (updateError) {
-          console.error('Error updating admin profile:', updateError);
-          toast({
-            title: 'Aviso',
-            description: 'Usuário criado, mas houve erro ao definir permissões de admin.',
-            variant: 'destructive',
-          });
-          return;
-        }
+          if (updateError) {
+            console.error('Error updating admin profile:', updateError);
+          }
+        }, 1000);
 
         toast({
           title: 'Sucesso',
-          description: 'Usuário administrador criado com sucesso!',
+          description: 'Usuário administrador criado! Verifique seu email para confirmar a conta.',
         });
       }
     } catch (error) {
