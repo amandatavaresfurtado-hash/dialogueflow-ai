@@ -3,6 +3,7 @@ import { SidebarProvider } from "@/components/ui/sidebar";
 import { ChatSidebar } from "@/components/chat/ChatSidebar";
 import { ChatHeader } from "@/components/chat/ChatHeader";
 import { ChatArea } from "@/components/chat/ChatArea";
+import { Footer } from "@/components/layout/Footer";
 import { useAuth } from "@/hooks/useAuth";
 import { useProfile } from "@/hooks/useProfile";
 import { AuthForm } from "@/components/auth/AuthForm";
@@ -74,10 +75,13 @@ export function ChatLayout() {
         
         <div className="flex-1 flex flex-col">
           <ChatHeader />
-          <ChatArea 
-            conversationId={selectedConversationId}
-            onConversationCreated={setSelectedConversationId}
-          />
+          <div className="flex-1">
+            <ChatArea 
+              conversationId={selectedConversationId}
+              onConversationCreated={setSelectedConversationId}
+            />
+          </div>
+          <Footer />
         </div>
       </div>
     </SidebarProvider>

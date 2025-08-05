@@ -216,43 +216,269 @@ export function SystemSettings() {
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <Key className="h-5 w-5" />
-            Configurações da API
+            Configurações da IA
           </CardTitle>
         </CardHeader>
-        <CardContent className="space-y-4">
+        <CardContent className="space-y-6">
+          {/* AI Provider Selection */}
           <div>
-            <Label htmlFor="api-key">Chave da API OpenAI</Label>
+            <Label htmlFor="ai-provider">Provedor de IA</Label>
             <div className="flex gap-2">
-              <div className="relative flex-1">
-                <Input
-                  id="api-key"
-                  type={showApiKey ? "text" : "password"}
-                  value={settings.openai_api_key || ''}
-                  onChange={(e) => handleInputChange('openai_api_key', e.target.value)}
-                />
-                <Button
-                  type="button"
-                  variant="ghost"
-                  size="sm"
-                  className="absolute right-2 top-1/2 -translate-y-1/2 h-auto p-1"
-                  onClick={() => setShowApiKey(!showApiKey)}
-                >
-                  {showApiKey ? (
-                    <EyeOff className="h-4 w-4" />
-                  ) : (
-                    <Eye className="h-4 w-4" />
-                  )}
-                </Button>
-              </div>
+              <select
+                id="ai-provider"
+                value={settings.ai_provider || 'openai'}
+                onChange={(e) => handleInputChange('ai_provider', e.target.value)}
+                className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background"
+              >
+                <option value="openai">OpenAI</option>
+                <option value="groq">Groq</option>
+                <option value="lmstudio">LM Studio</option>
+                <option value="anthropic">Anthropic (Claude)</option>
+                <option value="together">Together.ai</option>
+                <option value="gemini">Google Gemini</option>
+              </select>
               <Button 
-                onClick={() => updateSetting('openai_api_key', settings.openai_api_key)}
+                onClick={() => updateSetting('ai_provider', settings.ai_provider)}
               >
                 Salvar
               </Button>
             </div>
-            <p className="text-sm text-muted-foreground mt-1">
-              Chave da API OpenAI real. Alterações têm efeito imediato.
-            </p>
+          </div>
+
+          {/* OpenAI Settings */}
+          <div className="space-y-4 p-4 border rounded-lg">
+            <h4 className="font-medium">OpenAI</h4>
+            <div>
+              <Label htmlFor="ai-model">Modelo OpenAI</Label>
+              <div className="flex gap-2">
+                <Input
+                  id="ai-model"
+                  value={settings.ai_model || 'gpt-4o-mini'}
+                  onChange={(e) => handleInputChange('ai_model', e.target.value)}
+                  placeholder="gpt-4o-mini"
+                />
+                <Button 
+                  onClick={() => updateSetting('ai_model', settings.ai_model)}
+                >
+                  Salvar
+                </Button>
+              </div>
+            </div>
+          </div>
+
+          {/* Groq Settings */}
+          <div className="space-y-4 p-4 border rounded-lg">
+            <h4 className="font-medium">Groq</h4>
+            <div>
+              <Label htmlFor="groq-api-key">Chave da API Groq</Label>
+              <div className="flex gap-2">
+                <div className="relative flex-1">
+                  <Input
+                    id="groq-api-key"
+                    type={showApiKey ? "text" : "password"}
+                    value={settings.groq_api_key || ''}
+                    onChange={(e) => handleInputChange('groq_api_key', e.target.value)}
+                  />
+                </div>
+                <Button 
+                  onClick={() => updateSetting('groq_api_key', settings.groq_api_key)}
+                >
+                  Salvar
+                </Button>
+              </div>
+            </div>
+            <div>
+              <Label htmlFor="groq-model">Modelo Groq</Label>
+              <div className="flex gap-2">
+                <Input
+                  id="groq-model"
+                  value={settings.groq_model || 'llama-3.1-8b-instant'}
+                  onChange={(e) => handleInputChange('groq_model', e.target.value)}
+                  placeholder="llama-3.1-8b-instant"
+                />
+                <Button 
+                  onClick={() => updateSetting('groq_model', settings.groq_model)}
+                >
+                  Salvar
+                </Button>
+              </div>
+            </div>
+          </div>
+
+          {/* LM Studio Settings */}
+          <div className="space-y-4 p-4 border rounded-lg">
+            <h4 className="font-medium">LM Studio</h4>
+            <div>
+              <Label htmlFor="lmstudio-api-url">URL da API LM Studio</Label>
+              <div className="flex gap-2">
+                <Input
+                  id="lmstudio-api-url"
+                  value={settings.lmstudio_api_url || 'http://localhost:1234'}
+                  onChange={(e) => handleInputChange('lmstudio_api_url', e.target.value)}
+                  placeholder="http://localhost:1234"
+                />
+                <Button 
+                  onClick={() => updateSetting('lmstudio_api_url', settings.lmstudio_api_url)}
+                >
+                  Salvar
+                </Button>
+              </div>
+            </div>
+            <div>
+              <Label htmlFor="lmstudio-model">Modelo LM Studio</Label>
+              <div className="flex gap-2">
+                <Input
+                  id="lmstudio-model"
+                  value={settings.lmstudio_model || 'local-model'}
+                  onChange={(e) => handleInputChange('lmstudio_model', e.target.value)}
+                  placeholder="local-model"
+                />
+                <Button 
+                  onClick={() => updateSetting('lmstudio_model', settings.lmstudio_model)}
+                >
+                  Salvar
+                </Button>
+              </div>
+            </div>
+          </div>
+
+          {/* Anthropic Settings */}
+          <div className="space-y-4 p-4 border rounded-lg">
+            <h4 className="font-medium">Anthropic (Claude)</h4>
+            <div>
+              <Label htmlFor="anthropic-api-key">Chave da API Anthropic</Label>
+              <div className="flex gap-2">
+                <div className="relative flex-1">
+                  <Input
+                    id="anthropic-api-key"
+                    type={showApiKey ? "text" : "password"}
+                    value={settings.anthropic_api_key || ''}
+                    onChange={(e) => handleInputChange('anthropic_api_key', e.target.value)}
+                  />
+                </div>
+                <Button 
+                  onClick={() => updateSetting('anthropic_api_key', settings.anthropic_api_key)}
+                >
+                  Salvar
+                </Button>
+              </div>
+            </div>
+            <div>
+              <Label htmlFor="anthropic-model">Modelo Anthropic</Label>
+              <div className="flex gap-2">
+                <Input
+                  id="anthropic-model"
+                  value={settings.anthropic_model || 'claude-3-haiku-20240307'}
+                  onChange={(e) => handleInputChange('anthropic_model', e.target.value)}
+                  placeholder="claude-3-haiku-20240307"
+                />
+                <Button 
+                  onClick={() => updateSetting('anthropic_model', settings.anthropic_model)}
+                >
+                  Salvar
+                </Button>
+              </div>
+            </div>
+          </div>
+
+          {/* Together.ai Settings */}
+          <div className="space-y-4 p-4 border rounded-lg">
+            <h4 className="font-medium">Together.ai</h4>
+            <div>
+              <Label htmlFor="together-api-key">Chave da API Together</Label>
+              <div className="flex gap-2">
+                <div className="relative flex-1">
+                  <Input
+                    id="together-api-key"
+                    type={showApiKey ? "text" : "password"}
+                    value={settings.together_api_key || ''}
+                    onChange={(e) => handleInputChange('together_api_key', e.target.value)}
+                  />
+                </div>
+                <Button 
+                  onClick={() => updateSetting('together_api_key', settings.together_api_key)}
+                >
+                  Salvar
+                </Button>
+              </div>
+            </div>
+            <div>
+              <Label htmlFor="together-model">Modelo Together</Label>
+              <div className="flex gap-2">
+                <Input
+                  id="together-model"
+                  value={settings.together_model || 'meta-llama/Llama-2-7b-chat-hf'}
+                  onChange={(e) => handleInputChange('together_model', e.target.value)}
+                  placeholder="meta-llama/Llama-2-7b-chat-hf"
+                />
+                <Button 
+                  onClick={() => updateSetting('together_model', settings.together_model)}
+                >
+                  Salvar
+                </Button>
+              </div>
+            </div>
+          </div>
+
+          {/* Gemini Settings */}
+          <div className="space-y-4 p-4 border rounded-lg">
+            <h4 className="font-medium">Google Gemini</h4>
+            <div>
+              <Label htmlFor="gemini-api-key">Chave da API Gemini</Label>
+              <div className="flex gap-2">
+                <div className="relative flex-1">
+                  <Input
+                    id="gemini-api-key"
+                    type={showApiKey ? "text" : "password"}
+                    value={settings.gemini_api_key || ''}
+                    onChange={(e) => handleInputChange('gemini_api_key', e.target.value)}
+                  />
+                </div>
+                <Button 
+                  onClick={() => updateSetting('gemini_api_key', settings.gemini_api_key)}
+                >
+                  Salvar
+                </Button>
+              </div>
+            </div>
+            <div>
+              <Label htmlFor="gemini-model">Modelo Gemini</Label>
+              <div className="flex gap-2">
+                <Input
+                  id="gemini-model"
+                  value={settings.gemini_model || 'gemini-pro'}
+                  onChange={(e) => handleInputChange('gemini_model', e.target.value)}
+                  placeholder="gemini-pro"
+                />
+                <Button 
+                  onClick={() => updateSetting('gemini_model', settings.gemini_model)}
+                >
+                  Salvar
+                </Button>
+              </div>
+            </div>
+          </div>
+
+          {/* Toggle API Key Visibility */}
+          <div className="flex items-center gap-2">
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              onClick={() => setShowApiKey(!showApiKey)}
+            >
+              {showApiKey ? (
+                <>
+                  <EyeOff className="h-4 w-4 mr-2" />
+                  Ocultar Chaves
+                </>
+              ) : (
+                <>
+                  <Eye className="h-4 w-4 mr-2" />
+                  Mostrar Chaves
+                </>
+              )}
+            </Button>
           </div>
         </CardContent>
       </Card>
