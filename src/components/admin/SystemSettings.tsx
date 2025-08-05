@@ -56,6 +56,8 @@ export function SystemSettings() {
         .upsert({
           setting_key: key,
           setting_value: value
+        }, {
+          onConflict: 'setting_key'
         });
 
       if (error) throw error;
