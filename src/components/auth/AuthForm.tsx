@@ -5,6 +5,7 @@ import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { useAuth } from '@/hooks/useAuth';
 import { useToast } from '@/hooks/use-toast';
+import { translateAuthError } from '@/lib/auth-translations';
 
 export function AuthForm() {
   const [isSignUp, setIsSignUp] = useState(false);
@@ -39,7 +40,7 @@ export function AuthForm() {
         });
       }
     } catch (error: any) {
-      setError(error.message);
+      setError(translateAuthError(error.message));
     } finally {
       setLoading(false);
     }
