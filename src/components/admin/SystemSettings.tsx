@@ -249,7 +249,34 @@ export function SystemSettings() {
 
           {/* OpenAI Settings */}
           <div className="space-y-4 p-4 border rounded-lg">
-            <h4 className="font-medium">OpenAI</h4>
+            <div className="flex items-center justify-between">
+              <h4 className="font-medium">OpenAI</h4>
+              <Button
+                variant={settings.ai_provider === 'openai' ? "default" : "outline"}
+                size="sm"
+                onClick={() => updateSetting('ai_provider', 'openai')}
+              >
+                {settings.ai_provider === 'openai' ? 'Ativo' : 'Ativar'}
+              </Button>
+            </div>
+            <div>
+              <Label htmlFor="openai-api-key">Chave da API OpenAI</Label>
+              <div className="flex gap-2">
+                <div className="relative flex-1">
+                  <Input
+                    id="openai-api-key"
+                    type={showApiKey ? "text" : "password"}
+                    value={settings.openai_api_key || ''}
+                    onChange={(e) => handleInputChange('openai_api_key', e.target.value)}
+                  />
+                </div>
+                <Button 
+                  onClick={() => updateSetting('openai_api_key', settings.openai_api_key)}
+                >
+                  Salvar
+                </Button>
+              </div>
+            </div>
             <div>
               <Label htmlFor="ai-model">Modelo OpenAI</Label>
               <div className="flex gap-2">
@@ -270,7 +297,16 @@ export function SystemSettings() {
 
           {/* Groq Settings */}
           <div className="space-y-4 p-4 border rounded-lg">
-            <h4 className="font-medium">Groq</h4>
+            <div className="flex items-center justify-between">
+              <h4 className="font-medium">Groq</h4>
+              <Button
+                variant={settings.ai_provider === 'groq' ? "default" : "outline"}
+                size="sm"
+                onClick={() => updateSetting('ai_provider', 'groq')}
+              >
+                {settings.ai_provider === 'groq' ? 'Ativo' : 'Ativar'}
+              </Button>
+            </div>
             <div>
               <Label htmlFor="groq-api-key">Chave da API Groq</Label>
               <div className="flex gap-2">
@@ -309,7 +345,16 @@ export function SystemSettings() {
 
           {/* LM Studio Settings */}
           <div className="space-y-4 p-4 border rounded-lg">
-            <h4 className="font-medium">LM Studio</h4>
+            <div className="flex items-center justify-between">
+              <h4 className="font-medium">LM Studio</h4>
+              <Button
+                variant={settings.ai_provider === 'lmstudio' ? "default" : "outline"}
+                size="sm"
+                onClick={() => updateSetting('ai_provider', 'lmstudio')}
+              >
+                {settings.ai_provider === 'lmstudio' ? 'Ativo' : 'Ativar'}
+              </Button>
+            </div>
             <div>
               <Label htmlFor="lmstudio-api-url">URL da API LM Studio</Label>
               <div className="flex gap-2">
@@ -346,7 +391,16 @@ export function SystemSettings() {
 
           {/* Anthropic Settings */}
           <div className="space-y-4 p-4 border rounded-lg">
-            <h4 className="font-medium">Anthropic (Claude)</h4>
+            <div className="flex items-center justify-between">
+              <h4 className="font-medium">Anthropic (Claude)</h4>
+              <Button
+                variant={settings.ai_provider === 'anthropic' ? "default" : "outline"}
+                size="sm"
+                onClick={() => updateSetting('ai_provider', 'anthropic')}
+              >
+                {settings.ai_provider === 'anthropic' ? 'Ativo' : 'Ativar'}
+              </Button>
+            </div>
             <div>
               <Label htmlFor="anthropic-api-key">Chave da API Anthropic</Label>
               <div className="flex gap-2">
@@ -385,7 +439,16 @@ export function SystemSettings() {
 
           {/* Together.ai Settings */}
           <div className="space-y-4 p-4 border rounded-lg">
-            <h4 className="font-medium">Together.ai</h4>
+            <div className="flex items-center justify-between">
+              <h4 className="font-medium">Together.ai</h4>
+              <Button
+                variant={settings.ai_provider === 'together' ? "default" : "outline"}
+                size="sm"
+                onClick={() => updateSetting('ai_provider', 'together')}
+              >
+                {settings.ai_provider === 'together' ? 'Ativo' : 'Ativar'}
+              </Button>
+            </div>
             <div>
               <Label htmlFor="together-api-key">Chave da API Together</Label>
               <div className="flex gap-2">
@@ -424,7 +487,16 @@ export function SystemSettings() {
 
           {/* Gemini Settings */}
           <div className="space-y-4 p-4 border rounded-lg">
-            <h4 className="font-medium">Google Gemini</h4>
+            <div className="flex items-center justify-between">
+              <h4 className="font-medium">Google Gemini</h4>
+              <Button
+                variant={settings.ai_provider === 'gemini' ? "default" : "outline"}
+                size="sm"
+                onClick={() => updateSetting('ai_provider', 'gemini')}
+              >
+                {settings.ai_provider === 'gemini' ? 'Ativo' : 'Ativar'}
+              </Button>
+            </div>
             <div>
               <Label htmlFor="gemini-api-key">Chave da API Gemini</Label>
               <div className="flex gap-2">
