@@ -3,6 +3,7 @@ import { User, Bot } from 'lucide-react';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
+import { CodeBlock } from '@/components/ui/code-block';
 
 interface Message {
   id: string;
@@ -66,7 +67,25 @@ export function MessageList({ messages, isLoading }: MessageListProps) {
                   message.role === 'assistant' ? 'prose-slate dark:prose-invert' : ''
                 }`}>
                   {message.role === 'assistant' ? (
-                    <ReactMarkdown remarkPlugins={[remarkGfm]}>
+                    <ReactMarkdown 
+                      remarkPlugins={[remarkGfm]}
+                      components={{
+                        code: ({ children, className, ...props }) => {
+                          const match = /language-(\w+)/.exec(className || '');
+                          const language = match ? match[1] : '';
+                          
+                          if (language && typeof children === 'string') {
+                            return <CodeBlock language={language}>{children}</CodeBlock>;
+                          }
+                          
+                          return (
+                            <code className={className} {...props}>
+                              {children}
+                            </code>
+                          );
+                        },
+                      }}
+                    >
                       {message.content}
                     </ReactMarkdown>
                   ) : (
