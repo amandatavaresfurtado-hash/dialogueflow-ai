@@ -251,13 +251,10 @@ export function SystemSettings() {
           <div className="space-y-4 p-4 border rounded-lg">
             <div className="flex items-center justify-between">
               <h4 className="font-medium">OpenAI</h4>
-              <Button
-                variant={settings.ai_provider === 'openai' ? "default" : "outline"}
-                size="sm"
-                onClick={() => updateSetting('ai_provider', 'openai')}
-              >
-                {settings.ai_provider === 'openai' ? 'Ativo' : 'Ativar'}
-              </Button>
+              <Switch
+                checked={settings.ai_provider === 'openai'}
+                onCheckedChange={(checked) => checked && updateSetting('ai_provider', 'openai')}
+              />
             </div>
             <div>
               <Label htmlFor="openai-api-key">Chave da API OpenAI</Label>
@@ -299,13 +296,10 @@ export function SystemSettings() {
           <div className="space-y-4 p-4 border rounded-lg">
             <div className="flex items-center justify-between">
               <h4 className="font-medium">Groq</h4>
-              <Button
-                variant={settings.ai_provider === 'groq' ? "default" : "outline"}
-                size="sm"
-                onClick={() => updateSetting('ai_provider', 'groq')}
-              >
-                {settings.ai_provider === 'groq' ? 'Ativo' : 'Ativar'}
-              </Button>
+              <Switch
+                checked={settings.ai_provider === 'groq'}
+                onCheckedChange={(checked) => checked && updateSetting('ai_provider', 'groq')}
+              />
             </div>
             <div>
               <Label htmlFor="groq-api-key">Chave da API Groq</Label>
@@ -347,13 +341,10 @@ export function SystemSettings() {
           <div className="space-y-4 p-4 border rounded-lg">
             <div className="flex items-center justify-between">
               <h4 className="font-medium">LM Studio</h4>
-              <Button
-                variant={settings.ai_provider === 'lmstudio' ? "default" : "outline"}
-                size="sm"
-                onClick={() => updateSetting('ai_provider', 'lmstudio')}
-              >
-                {settings.ai_provider === 'lmstudio' ? 'Ativo' : 'Ativar'}
-              </Button>
+              <Switch
+                checked={settings.ai_provider === 'lmstudio'}
+                onCheckedChange={(checked) => checked && updateSetting('ai_provider', 'lmstudio')}
+              />
             </div>
             <div>
               <Label htmlFor="lmstudio-api-url">URL da API LM Studio</Label>
@@ -393,13 +384,10 @@ export function SystemSettings() {
           <div className="space-y-4 p-4 border rounded-lg">
             <div className="flex items-center justify-between">
               <h4 className="font-medium">Anthropic (Claude)</h4>
-              <Button
-                variant={settings.ai_provider === 'anthropic' ? "default" : "outline"}
-                size="sm"
-                onClick={() => updateSetting('ai_provider', 'anthropic')}
-              >
-                {settings.ai_provider === 'anthropic' ? 'Ativo' : 'Ativar'}
-              </Button>
+              <Switch
+                checked={settings.ai_provider === 'anthropic'}
+                onCheckedChange={(checked) => checked && updateSetting('ai_provider', 'anthropic')}
+              />
             </div>
             <div>
               <Label htmlFor="anthropic-api-key">Chave da API Anthropic</Label>
@@ -441,13 +429,10 @@ export function SystemSettings() {
           <div className="space-y-4 p-4 border rounded-lg">
             <div className="flex items-center justify-between">
               <h4 className="font-medium">Together.ai</h4>
-              <Button
-                variant={settings.ai_provider === 'together' ? "default" : "outline"}
-                size="sm"
-                onClick={() => updateSetting('ai_provider', 'together')}
-              >
-                {settings.ai_provider === 'together' ? 'Ativo' : 'Ativar'}
-              </Button>
+              <Switch
+                checked={settings.ai_provider === 'together'}
+                onCheckedChange={(checked) => checked && updateSetting('ai_provider', 'together')}
+              />
             </div>
             <div>
               <Label htmlFor="together-api-key">Chave da API Together</Label>
@@ -489,13 +474,10 @@ export function SystemSettings() {
           <div className="space-y-4 p-4 border rounded-lg">
             <div className="flex items-center justify-between">
               <h4 className="font-medium">Google Gemini</h4>
-              <Button
-                variant={settings.ai_provider === 'gemini' ? "default" : "outline"}
-                size="sm"
-                onClick={() => updateSetting('ai_provider', 'gemini')}
-              >
-                {settings.ai_provider === 'gemini' ? 'Ativo' : 'Ativar'}
-              </Button>
+              <Switch
+                checked={settings.ai_provider === 'gemini'}
+                onCheckedChange={(checked) => checked && updateSetting('ai_provider', 'gemini')}
+              />
             </div>
             <div>
               <Label htmlFor="gemini-api-key">Chave da API Gemini</Label>
