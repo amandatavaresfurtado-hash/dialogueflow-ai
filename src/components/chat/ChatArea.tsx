@@ -103,7 +103,7 @@ export function ChatArea({ conversationId, onConversationCreated }: ChatAreaProp
       .from('conversations')
       .insert([{ 
         title: 'Nova conversa',
-        user_id: (await supabase.auth.getUser()).data.user?.id 
+        user_id: user?.id 
       }])
       .select()
       .single();
