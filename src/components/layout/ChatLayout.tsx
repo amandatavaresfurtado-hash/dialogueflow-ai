@@ -73,10 +73,7 @@ export function ChatLayout() {
         />
         
         <div className="flex-1 flex flex-col">
-          <ChatHeader 
-            conversationId={selectedConversationId}
-            onTeamCreated={setSelectedConversationId}
-          />
+          <ChatHeader />
           <ChatArea 
             conversationId={selectedConversationId}
             onConversationCreated={setSelectedConversationId}
