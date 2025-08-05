@@ -40,6 +40,8 @@ export function useAuth() {
         data: {
           full_name: fullName,
         },
+        // Email confirmation disabled - accounts activated manually by admin
+        // emailRedirectTo: `${window.location.origin}/`
       },
     });
     return { error };

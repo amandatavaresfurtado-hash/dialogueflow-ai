@@ -12,6 +12,7 @@ export function AuthForm() {
   const [password, setPassword] = useState('');
   const [fullName, setFullName] = useState('');
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
   
   const { signIn, signUp } = useAuth();
   const { toast } = useToast();
@@ -19,6 +20,7 @@ export function AuthForm() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
+    setError('');
 
     try {
       if (isSignUp) {
@@ -26,7 +28,7 @@ export function AuthForm() {
         if (error) throw error;
         toast({
           title: "Conta criada!",
-          description: "Verifique seu email para confirmar a conta.",
+          description: "Conta criada com sucesso! Aguarde ativação pelo administrador.",
         });
       } else {
         const { error } = await signIn(email, password);
@@ -37,11 +39,7 @@ export function AuthForm() {
         });
       }
     } catch (error: any) {
-      toast({
-        title: "Erro",
-        description: error.message,
-        variant: "destructive",
-      });
+      setError(error.message);
     } finally {
       setLoading(false);
     }
@@ -52,12 +50,12 @@ export function AuthForm() {
       <Card className="w-full max-w-md">
         <CardHeader>
           <CardTitle>{isSignUp ? 'Criar Conta' : 'Entrar'}</CardTitle>
-          <CardDescription>
-            {isSignUp 
-              ? 'Crie uma conta para começar a usar o chat' 
-              : 'Entre com suas credenciais'
-            }
-          </CardDescription>
+        <CardDescription>
+          {isSignUp 
+            ? 'Crie uma conta para começar a usar o chat' 
+            : 'Entre com suas credenciais da plataforma...'
+          }
+        </CardDescription>
         </CardHeader>
         <CardContent>
           <form onSubmit={handleSubmit} className="space-y-4">
@@ -100,10 +98,21 @@ export function AuthForm() {
               />
             </div>
             
-            <Button type="submit" className="w-full" disabled={loading}>
+            <Button 
+              type="submit" 
+              className="w-full" 
+              disabled={loading}
+              style={!isSignUp ? { backgroundColor: '#047958' } : undefined}
+            >
               {loading ? 'Carregando...' : (isSignUp ? 'Criar Conta' : 'Entrar')}
             </Button>
           </form>
+          
+          {error && !loading && (
+            <div className="mt-3 p-3 text-sm text-destructive bg-destructive/10 border border-destructive/20 rounded-md">
+              {error}
+            </div>
+          )}
           
           <div className="mt-4 text-center text-sm">
             {isSignUp ? 'Já tem uma conta?' : 'Não tem uma conta?'}
