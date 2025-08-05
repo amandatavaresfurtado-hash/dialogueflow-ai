@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Plus, MessageSquare, Edit3, Trash2, Moon, Sun, LogOut } from 'lucide-react';
+import { Plus, MessageSquare, Edit3, Trash2, Moon, Sun, LogOut, Users, Share2 } from 'lucide-react';
 import { 
   Sidebar, 
   SidebarContent, 

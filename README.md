@@ -1,229 +1,138 @@
 # FHUB - GPT 1.0
 
-Sistema de chat com IA baseado em GPT, com funcionalidades administrativas completas e gestão de usuários.
+Uma plataforma de chat AI completa com sistema de tokens, autenticação, administração e funcionalidades colaborativas.
 
-## 📋 Sobre o Sistema
+## ✨ Funcionalidades
 
-FHUB - GPT 1.0 é uma aplicação web moderna que oferece:
-- Chat com IA (GPT-4o-mini) com histórico de conversas
-- Sistema de autenticação seguro
-- Painel administrativo completo para gestão de usuários e conversas
-- Interface responsiva e amigável
+### 🔐 Autenticação e Autorização
+- Sistema completo de login/registro com Supabase Auth
+- Perfis de usuário com roles (admin/user)
+- Sistema de ativação de contas por administradores
+- Controle de acesso baseado em roles
+
+### 💬 Chat Inteligente
+- Interface de chat moderna e responsiva
+- Integração com OpenAI GPT-4o-mini
+- Suporte a múltiplas conversas
+- Histórico persistente de conversas
+- Edição e exclusão de conversas
+
+### 📎 Anexos e Mídia
+- **Imagens**: Upload e visualização de imagens no chat
+- **Arquivos**: Suporte a anexos PDF e ZIP (até 10MB)
+- Storage seguro com Supabase Storage
+- Preview de arquivos e download direto
+
+### 🪙 Sistema de Tokens
+- Sistema de créditos por mensagem
+- Controle de custos personalizável por administradores
+- Histórico de transações de tokens
+- Bloqueio automático quando tokens insuficientes
+
+### 👥 Funcionalidades Colaborativas
+
+#### Compartilhamento de Chat
+- Compartilhe conversas com outros usuários da plataforma
+- Busca por email do destinatário
+- Verificação automática de usuários válidos
+- Controle de acesso por RLS
+
+#### Equipes/Grupos
+- Criação de equipes colaborativas
+- Convite de membros por email
+- Chat em grupo onde cada membro usa seus próprios tokens
+- Roles de admin e membro na equipe
+- Continuidade de conversa mesmo se um membro ficar sem tokens
+
+### ⚙️ Painel Administrativo
+
+#### Gerenciamento de Usuários
+- Visualização de todos os usuários
+- Ativação/desativação de contas
+- Gerenciamento de tokens por usuário
+- Alteração de roles (admin/user)
+
+#### Configurações do Sistema
+- Definição do custo por mensagem
+- Configuração de chaves API
+- Controle de configurações globais
+
+#### Monitoramento
+- Visualização de transações de tokens
+- Histórico de atividades
+- Métricas de uso da plataforma
 
 ## 🛠️ Tecnologias Utilizadas
 
 ### Frontend
-- **React 18.3.1** - Biblioteca JavaScript para interface
+- **React 18** - Biblioteca principal
 - **TypeScript** - Tipagem estática
-- **Vite** - Build tool e servidor de desenvolvimento
-- **Tailwind CSS** - Framework CSS utility-first
-- **Shadcn/ui** - Componentes UI reutilizáveis
-- **React Router DOM** - Roteamento
-- **React Hook Form** - Gerenciamento de formulários
-- **Tanstack Query** - Gerenciamento de estado servidor
+- **Tailwind CSS** - Estilização
+- **Shadcn/ui** - Componentes UI
+- **React Router** - Roteamento
+- **Lucide Icons** - Ícones
 
-### Backend/Banco de Dados
-- **Supabase** - Backend as a Service
-  - PostgreSQL como banco de dados
-  - Autenticação integrada
-  - Row Level Security (RLS)
-  - Edge Functions
-  - Storage para arquivos
+### Backend
+- **Supabase** - Backend completo
+- **PostgreSQL** - Banco de dados
+- **Row Level Security (RLS)** - Segurança a nível de linha
+- **Supabase Storage** - Armazenamento de arquivos
+- **Supabase Edge Functions** - Funções serverless
 
-### APIs Externas
-- **OpenAI API** - Integração com GPT-4o-mini
+### Integrações
+- **OpenAI API** - Inteligência artificial
+- **React Markdown** - Renderização de markdown
+- **React Syntax Highlighter** - Syntax highlighting para código
 
-## 🏗️ Arquitetura do Banco de Dados
-
-### Tabelas Principais
-
-#### `profiles`
-- Armazena informações dos usuários
-- Campos: id, user_id, email, full_name, role, is_active, created_at, updated_at
-- RLS habilitado para segurança
-
-#### `conversations`
-- Histórico de conversas dos usuários
-- Campos: id, user_id, title, created_at, updated_at
-- Relacionado ao usuário via user_id
-
-#### `messages`
-- Mensagens individuais das conversas
-- Campos: id, conversation_id, role, content, image_url, created_at
-- Relacionado à conversa via conversation_id
-
-### Funções do Banco
-- `handle_new_user()` - Cria perfil automaticamente ao registrar usuário
-- `has_role()` - Verifica permissões de usuário
-- `is_user_active()` - Verifica se usuário está ativo
-- `update_updated_at_column()` - Atualiza timestamp automaticamente
-
-## 📦 Instalação
+## 🚀 Como Executar
 
 ### Pré-requisitos
-- Node.js (versão 18 ou superior)
-- npm ou yarn
+- Node.js 18+
 - Conta no Supabase
 - Chave da API OpenAI
 
-### 1. Clonar o Repositório
-```bash
-git clone <URL_DO_REPOSITORIO>
-cd fhub-gpt
-```
+### Instalação
+1. Clone o repositório
+2. Instale as dependências: `npm install`
+3. Configure as variáveis de ambiente no Supabase
+4. Execute as migrações do banco de dados
+5. Configure a chave da OpenAI no painel admin
+6. Execute o projeto: `npm run dev`
 
-### 2. Instalar Dependências
-```bash
-npm install
-```
+## 📊 Estrutura do Banco de Dados
 
-### 3. Configuração do Ambiente
+### Tabelas Principais
+- `profiles` - Perfis de usuários
+- `conversations` - Conversas do chat
+- `messages` - Mensagens individuais
+- `teams` - Equipes/grupos
+- `team_members` - Membros das equipes
+- `shared_conversations` - Conversas compartilhadas
+- `token_transactions` - Histórico de tokens
+- `system_settings` - Configurações globais
 
-O sistema já vem configurado com as credenciais do Supabase integradas. Você precisará apenas configurar:
+### Storage Buckets
+- `chat-images` - Imagens do chat
+- `chat-attachments` - Anexos de arquivos
 
-#### Secrets no Supabase (Edge Functions)
-Acesse o painel do Supabase e configure os seguintes secrets:
-- `OPENAI_API_KEY` - Sua chave da API OpenAI
+## 🔒 Segurança
 
-### 4. Executar em Desenvolvimento
-```bash
-npm run dev
-```
-
-A aplicação estará disponível em `http://localhost:5173`
-
-## 🚀 Deploy/Hospedagem
-
-### Opções Recomendadas de Hospedagem
-
-#### 1. **Vercel** (Recomendado)
-- Deploy automático via Git
-- Configuração zero
-- CDN global
-- SSL automático
-
-```bash
-# Instalar Vercel CLI
-npm i -g vercel
-
-# Deploy
-vercel
-```
-
-#### 2. **Netlify**
-- Build automático
-- CDN integrado
-- Formulários e funções serverless
-
-#### 3. **Render**
-- Deploy gratuito
-- Builds automáticos
-- SSL incluído
-
-#### 4. **Railway**
-- Deploy simples
-- Escalabilidade automática
-
-### Configuração de Build
-```bash
-# Build de produção
-npm run build
-
-# Preview local do build
-npm run preview
-```
-
-## 👨‍💼 Funcionalidades Administrativas
-
-### Gestão de Usuários
-- ✅ Criar usuários manualmente
-- ✅ Editar informações (nome, email, papel, status)
-- ✅ Ativar/desativar usuários
-- ✅ Promover/rebaixar administradores
-- ✅ Excluir usuários
-- ✅ Visualizar estatísticas
-
-### Gestão de Conversas
-- ✅ Visualizar todas as conversas
-- ✅ Ler mensagens completas
-- ✅ Editar títulos das conversas
-- ✅ Excluir conversas (com todas as mensagens)
-- ✅ Filtros e ordenação
-
-## 🔐 Sistema de Autenticação
-
-### Tipos de Usuário
-- **user** - Usuário comum (pode usar o chat)
-- **admin** - Administrador (acesso total ao sistema)
-
-### Segurança
-- Row Level Security (RLS) habilitado
+- Row Level Security (RLS) em todas as tabelas
+- Autenticação obrigatória para todas as operações
+- Validação de tipos de arquivo e tamanho
 - Políticas de acesso granulares
-- Senhas criptografadas via Supabase Auth
-- Sessões seguras com tokens JWT
+- Proteção contra acesso não autorizado
 
-## 📱 Como Usar
+## 📈 Funcionalidades Futuras
 
-### Para Usuários
-1. Registre-se ou faça login
-2. Aguarde ativação por um administrador
-3. Use o chat para conversar com a IA
-4. Suas conversas ficam salvas no histórico
-
-### Para Administradores
-1. Acesse `/admin` após fazer login
-2. Gerencie usuários na aba "Usuários"
-3. Gerencie conversas na aba "Conversas"
-4. Ative novos usuários conforme necessário
-
-## 🔧 Manutenção
-
-### Logs e Monitoramento
-- Logs do Edge Function disponíveis no Supabase
-- Console do navegador para debug frontend
-- Métricas de uso no painel Supabase
-
-### Backup
-- Dados armazenados no PostgreSQL (Supabase)
-- Backup automático do Supabase
-- Exporte dados via SQL se necessário
-
-## 📞 Suporte
-
-### Estrutura de Arquivos
-```
-src/
-├── components/
-│   ├── admin/          # Painel administrativo
-│   ├── auth/           # Autenticação
-│   ├── chat/           # Interface do chat
-│   ├── layout/         # Layouts
-│   └── ui/             # Componentes UI
-├── hooks/              # Custom hooks
-├── integrations/       # Integrações (Supabase)
-├── lib/                # Utilitários
-└── pages/              # Páginas
-```
-
-### Comandos Úteis
-```bash
-# Desenvolvimento
-npm run dev
-
-# Build
-npm run build
-
-# Lint
-npm run lint
-
-# Preview build
-npm run preview
-```
-
-## 📄 Licença
-
-Este projeto é propriedade privada. Todos os direitos reservados.
+- [ ] Notificações em tempo real
+- [ ] Integração com mais modelos de AI
+- [ ] Sistema de assinaturas
+- [ ] API pública
+- [ ] Aplicativo mobile
+- [ ] Temas personalizáveis
+- [ ] Integração com Discord/Slack
 
 ---
 
-**Desenvolvido com ❤️ usando React, TypeScript, Supabase e OpenAI**
+**Desenvolvido com ❤️ usando React, Supabase e OpenAI**

@@ -4,8 +4,15 @@ import { useProfile } from '@/hooks/useProfile';
 import { useAuth } from '@/hooks/useAuth';
 import { Settings, LogOut } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import { ShareChatDialog } from './ShareChatDialog';
+import { CreateTeamDialog } from './CreateTeamDialog';
 
-export function ChatHeader() {
+interface ChatHeaderProps {
+  conversationId?: string | null;
+  onTeamCreated?: (teamId: string) => void;
+}
+
+export function ChatHeader({ conversationId, onTeamCreated }: ChatHeaderProps) {
   const { signOut } = useAuth();
   const { isAdmin, profile } = useProfile();
 
@@ -18,6 +25,12 @@ export function ChatHeader() {
         </div>
         
         <div className="flex items-center gap-2">
+          <CreateTeamDialog onTeamCreated={onTeamCreated || (() => {})} />
+          
+          {conversationId && (
+            <ShareChatDialog conversationId={conversationId} />
+          )}
+          
           <span className="text-sm text-muted-foreground">
             {profile?.full_name || profile?.email}
           </span>

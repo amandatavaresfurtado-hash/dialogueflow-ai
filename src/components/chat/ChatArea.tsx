@@ -14,6 +14,9 @@ interface Message {
   role: 'user' | 'assistant';
   content: string;
   image_url?: string;
+  attachment_url?: string;
+  attachment_type?: string;
+  attachment_name?: string;
   created_at: string;
 }
 
@@ -28,9 +31,11 @@ export function ChatArea({ conversationId, onConversationCreated }: ChatAreaProp
   const [isLoading, setIsLoading] = useState(false);
   const [selectedImage, setSelectedImage] = useState<File | null>(null);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [userTokens, setUserTokens] = useState<number>(0);
   const [messageCost, setMessageCost] = useState<number>(0.5);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const attachmentInputRef = useRef<HTMLInputElement>(null);
   const { toast } = useToast();
   const { user } = useAuth();
 
@@ -140,8 +145,31 @@ export function ChatArea({ conversationId, onConversationCreated }: ChatAreaProp
     return data.publicUrl;
   };
 
+  const uploadFile = async (file: File): Promise<{ url: string; type: string; name: string }> => {
+    const fileExt = file.name.split('.').pop();
+    const fileName = `${user?.id}/${Math.random()}.${fileExt}`;
+
+    const { error: uploadError } = await supabase.storage
+      .from('chat-attachments')
+      .upload(fileName, file);
+
+    if (uploadError) {
+      throw uploadError;
+    }
+
+    const { data } = supabase.storage
+      .from('chat-attachments')
+      .getPublicUrl(fileName);
+
+    return {
+      url: data.publicUrl,
+      type: file.type,
+      name: file.name
+    };
+  };
+
   const sendMessage = async () => {
-    if (!inputValue.trim() && !selectedImage) return;
+    if (!inputValue.trim() && !selectedImage && !selectedFile) return;
 
     // Check if user has enough tokens
     if (userTokens < messageCost) {
@@ -158,8 +186,14 @@ export function ChatArea({ conversationId, onConversationCreated }: ChatAreaProp
       const currentConversationId = await createConversationIfNeeded();
       
       let imageUrl: string | undefined;
+      let attachmentData: { url: string; type: string; name: string } | undefined;
+      
       if (selectedImage) {
         imageUrl = await uploadImage(selectedImage);
+      }
+      
+      if (selectedFile) {
+        attachmentData = await uploadFile(selectedFile);
       }
 
       // Add user message
@@ -168,6 +202,9 @@ export function ChatArea({ conversationId, onConversationCreated }: ChatAreaProp
         role: 'user' as const,
         content: inputValue.trim(),
         image_url: imageUrl,
+        attachment_url: attachmentData?.url,
+        attachment_type: attachmentData?.type,
+        attachment_name: attachmentData?.name,
       };
 
       const { data: userMsgData, error: userMsgError } = await supabase
@@ -185,6 +222,7 @@ export function ChatArea({ conversationId, onConversationCreated }: ChatAreaProp
       setInputValue('');
       setSelectedImage(null);
       setImagePreview(null);
+      setSelectedFile(null);
 
       // Call Supabase Edge Function
       const response = await supabase.functions.invoke('chat', {
@@ -276,6 +314,34 @@ export function ChatArea({ conversationId, onConversationCreated }: ChatAreaProp
     }
   };
 
+  const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      // Check file type
+      const allowedTypes = ['application/pdf', 'application/zip', 'application/x-zip-compressed'];
+      if (!allowedTypes.includes(file.type)) {
+        toast({
+          title: "Tipo de arquivo inválido",
+          description: "Apenas arquivos PDF e ZIP são permitidos",
+          variant: "destructive",
+        });
+        return;
+      }
+      
+      // Check file size (max 10MB)
+      if (file.size > 10 * 1024 * 1024) {
+        toast({
+          title: "Arquivo muito grande",
+          description: "O arquivo deve ter no máximo 10MB",
+          variant: "destructive",
+        });
+        return;
+      }
+      
+      setSelectedFile(file);
+    }
+  };
+
   const handleKeyDown = (e: React.KeyboardEvent) => {
     if (e.key === 'Enter' && !e.shiftKey) {
       e.preventDefault();
@@ -313,6 +379,21 @@ export function ChatArea({ conversationId, onConversationCreated }: ChatAreaProp
             </div>
           )}
           
+          {selectedFile && (
+            <div className="mb-4 flex items-center gap-2 p-2 bg-muted rounded">
+              <Paperclip className="h-4 w-4" />
+              <span className="text-sm">{selectedFile.name}</span>
+              <Button
+                size="sm"
+                variant="destructive"
+                className="h-6 w-6 rounded-full p-0 ml-auto"
+                onClick={() => setSelectedFile(null)}
+              >
+                ×
+              </Button>
+            </div>
+          )}
+          
           <div className="flex gap-2">
             <div className="flex gap-1">
               <input
@@ -322,6 +403,13 @@ export function ChatArea({ conversationId, onConversationCreated }: ChatAreaProp
                 onChange={handleImageSelect}
                 className="hidden"
               />
+              <input
+                ref={attachmentInputRef}
+                type="file"
+                accept=".pdf,.zip"
+                onChange={handleFileSelect}
+                className="hidden"
+              />
               <Button
                 size="sm"
                 variant="outline"
@@ -329,6 +417,14 @@ export function ChatArea({ conversationId, onConversationCreated }: ChatAreaProp
                 disabled={isLoading}
               >
                 <ImageIcon className="h-4 w-4" />
+              </Button>
+              <Button
+                size="sm"
+                variant="outline"
+                onClick={() => attachmentInputRef.current?.click()}
+                disabled={isLoading}
+              >
+                <Paperclip className="h-4 w-4" />
               </Button>
             </div>
 
