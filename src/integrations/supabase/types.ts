@@ -18,6 +18,7 @@ export type Database = {
         Row: {
           created_at: string
           id: string
+          team_id: string | null
           title: string
           updated_at: string
           user_id: string | null
@@ -25,6 +26,7 @@ export type Database = {
         Insert: {
           created_at?: string
           id?: string
+          team_id?: string | null
           title?: string
           updated_at?: string
           user_id?: string | null
@@ -32,6 +34,7 @@ export type Database = {
         Update: {
           created_at?: string
           id?: string
+          team_id?: string | null
           title?: string
           updated_at?: string
           user_id?: string | null
@@ -40,6 +43,9 @@ export type Database = {
       }
       messages: {
         Row: {
+          attachment_name: string | null
+          attachment_type: string | null
+          attachment_url: string | null
           content: string
           conversation_id: string
           created_at: string
@@ -48,6 +54,9 @@ export type Database = {
           role: string
         }
         Insert: {
+          attachment_name?: string | null
+          attachment_type?: string | null
+          attachment_url?: string | null
           content: string
           conversation_id: string
           created_at?: string
@@ -56,6 +65,9 @@ export type Database = {
           role: string
         }
         Update: {
+          attachment_name?: string | null
+          attachment_type?: string | null
+          attachment_url?: string | null
           content?: string
           conversation_id?: string
           created_at?: string
@@ -108,6 +120,38 @@ export type Database = {
           user_id?: string
         }
         Relationships: []
+      }
+      shared_conversations: {
+        Row: {
+          conversation_id: string
+          id: string
+          shared_at: string
+          shared_by: string
+          shared_with: string
+        }
+        Insert: {
+          conversation_id: string
+          id?: string
+          shared_at?: string
+          shared_by: string
+          shared_with: string
+        }
+        Update: {
+          conversation_id?: string
+          id?: string
+          shared_at?: string
+          shared_by?: string
+          shared_with?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "shared_conversations_conversation_id_fkey"
+            columns: ["conversation_id"]
+            isOneToOne: false
+            referencedRelation: "conversations"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       system_settings: {
         Row: {
