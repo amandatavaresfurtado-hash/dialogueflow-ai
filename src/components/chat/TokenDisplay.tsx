@@ -24,6 +24,51 @@ export function TokenDisplay() {
     }
   }, [user]);
 
+  // Realtime subscription for tokens
+  useEffect(() => {
+    if (!user) return;
+
+    const profileChannel = supabase
+      .channel('token-display-profile')
+      .on(
+        'postgres_changes',
+        {
+          event: 'UPDATE',
+          schema: 'public',
+          table: 'profiles',
+          filter: `user_id=eq.${user.id}`
+        },
+        (payload) => {
+          console.log('TokenDisplay - Profile change:', payload);
+          if (payload.new.tokens !== undefined) {
+            setTokens(payload.new.tokens);
+          }
+        }
+      )
+      .subscribe();
+
+    const settingsChannel = supabase
+      .channel('token-display-settings')
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'system_settings'
+        },
+        () => {
+          console.log('TokenDisplay - Settings changed, reloading...');
+          loadSettings();
+        }
+      )
+      .subscribe();
+
+    return () => {
+      profileChannel.unsubscribe();
+      settingsChannel.unsubscribe();
+    };
+  }, [user]);
+
   const loadUserTokens = async () => {
     if (!user) return;
 

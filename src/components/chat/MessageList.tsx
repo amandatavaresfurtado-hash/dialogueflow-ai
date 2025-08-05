@@ -1,5 +1,5 @@
 import { useEffect, useRef } from 'react';
-import { User, Bot } from 'lucide-react';
+import { User, Bot, Download, FileText, Archive } from 'lucide-react';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
@@ -10,6 +10,9 @@ interface Message {
   role: 'user' | 'assistant';
   content: string;
   image_url?: string;
+  attachment_url?: string;
+  attachment_name?: string;
+  attachment_type?: string;
   created_at: string;
 }
 
@@ -61,8 +64,28 @@ export function MessageList({ messages, isLoading }: MessageListProps) {
                     alt="User uploaded" 
                     className="max-w-sm rounded-lg"
                   />
-                )}
-                
+                 )}
+                 
+                 {message.attachment_url && (
+                   <div className="flex items-center gap-2 p-3 bg-muted rounded-lg border max-w-sm">
+                     {message.attachment_type?.includes('pdf') ? (
+                       <FileText className="h-4 w-4 text-red-500" />
+                     ) : (
+                       <Archive className="h-4 w-4 text-blue-500" />
+                     )}
+                     <span className="text-sm truncate flex-1">
+                       {message.attachment_name}
+                     </span>
+                     <a
+                       href={message.attachment_url}
+                       download={message.attachment_name}
+                       className="p-1 hover:bg-background rounded"
+                     >
+                       <Download className="h-4 w-4" />
+                     </a>
+                   </div>
+                 )}
+                 
                 <div className={`prose prose-sm max-w-none ${
                   message.role === 'assistant' ? 'prose-slate dark:prose-invert' : ''
                 }`}>

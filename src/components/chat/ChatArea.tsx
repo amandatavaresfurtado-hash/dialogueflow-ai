@@ -14,6 +14,9 @@ interface Message {
   role: 'user' | 'assistant';
   content: string;
   image_url?: string;
+  attachment_url?: string;
+  attachment_name?: string;
+  attachment_type?: string;
   created_at: string;
 }
 
@@ -28,9 +31,11 @@ export function ChatArea({ conversationId, onConversationCreated }: ChatAreaProp
   const [isLoading, setIsLoading] = useState(false);
   const [selectedImage, setSelectedImage] = useState<File | null>(null);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
+  const [selectedAttachment, setSelectedAttachment] = useState<File | null>(null);
   const [userTokens, setUserTokens] = useState<number>(0);
   const [messageCost, setMessageCost] = useState<number>(0.5);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const attachmentInputRef = useRef<HTMLInputElement>(null);
   const { toast } = useToast();
   const { user } = useAuth();
 
@@ -42,6 +47,64 @@ export function ChatArea({ conversationId, onConversationCreated }: ChatAreaProp
     }
     loadUserTokens();
     loadSystemSettings();
+  }, [conversationId, user]);
+
+  // Realtime subscriptions
+  useEffect(() => {
+    if (!user) return;
+
+    // Listen to messages changes
+    const messagesChannel = supabase
+      .channel('messages-changes')
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'messages',
+          filter: conversationId ? `conversation_id=eq.${conversationId}` : undefined
+        },
+        (payload) => {
+          console.log('Message change:', payload);
+          if (payload.eventType === 'INSERT') {
+            setMessages(prev => {
+              const newMessage: Message = {
+                ...payload.new as any,
+                role: payload.new.role as 'user' | 'assistant'
+              };
+              // Avoid duplicates
+              if (prev.find(m => m.id === newMessage.id)) return prev;
+              return [...prev, newMessage];
+            });
+          }
+        }
+      )
+      .subscribe();
+
+    // Listen to profile changes (tokens)
+    const profileChannel = supabase
+      .channel('profile-changes')
+      .on(
+        'postgres_changes',
+        {
+          event: 'UPDATE',
+          schema: 'public',
+          table: 'profiles',
+          filter: `user_id=eq.${user.id}`
+        },
+        (payload) => {
+          console.log('Profile change:', payload);
+          if (payload.new.tokens !== undefined) {
+            setUserTokens(payload.new.tokens);
+          }
+        }
+      )
+      .subscribe();
+
+    return () => {
+      messagesChannel.unsubscribe();
+      profileChannel.unsubscribe();
+    };
   }, [conversationId, user]);
 
   const loadUserTokens = async () => {
@@ -140,8 +203,27 @@ export function ChatArea({ conversationId, onConversationCreated }: ChatAreaProp
     return data.publicUrl;
   };
 
+  const uploadAttachment = async (file: File): Promise<string> => {
+    const fileExt = file.name.split('.').pop();
+    const fileName = `${Math.random()}.${fileExt}`;
+
+    const { error: uploadError } = await supabase.storage
+      .from('chat-attachments')
+      .upload(fileName, file);
+
+    if (uploadError) {
+      throw uploadError;
+    }
+
+    const { data } = supabase.storage
+      .from('chat-attachments')
+      .getPublicUrl(fileName);
+
+    return data.publicUrl;
+  };
+
   const sendMessage = async () => {
-    if (!inputValue.trim() && !selectedImage) return;
+    if (!inputValue.trim() && !selectedImage && !selectedAttachment) return;
 
     // Check if user has enough tokens
     if (userTokens < messageCost) {
@@ -162,12 +244,24 @@ export function ChatArea({ conversationId, onConversationCreated }: ChatAreaProp
         imageUrl = await uploadImage(selectedImage);
       }
 
+      let attachmentUrl: string | undefined;
+      let attachmentName: string | undefined;
+      let attachmentType: string | undefined;
+      if (selectedAttachment) {
+        attachmentUrl = await uploadAttachment(selectedAttachment);
+        attachmentName = selectedAttachment.name;
+        attachmentType = selectedAttachment.type;
+      }
+
       // Add user message
       const userMessage = {
         conversation_id: currentConversationId,
         role: 'user' as const,
         content: inputValue.trim(),
         image_url: imageUrl,
+        attachment_url: attachmentUrl,
+        attachment_name: attachmentName,
+        attachment_type: attachmentType,
       };
 
       const { data: userMsgData, error: userMsgError } = await supabase
@@ -185,6 +279,7 @@ export function ChatArea({ conversationId, onConversationCreated }: ChatAreaProp
       setInputValue('');
       setSelectedImage(null);
       setImagePreview(null);
+      setSelectedAttachment(null);
 
       // Call Supabase Edge Function
       const response = await supabase.functions.invoke('chat', {
@@ -276,6 +371,34 @@ export function ChatArea({ conversationId, onConversationCreated }: ChatAreaProp
     }
   };
 
+  const handleAttachmentSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      // Check file size (10MB max)
+      if (file.size > 10 * 1024 * 1024) {
+        toast({
+          title: "Arquivo muito grande",
+          description: "O arquivo deve ter no máximo 10MB",
+          variant: "destructive",
+        });
+        return;
+      }
+
+      // Check file type
+      const allowedTypes = ['application/pdf', 'application/zip', 'application/x-zip-compressed'];
+      if (!allowedTypes.includes(file.type)) {
+        toast({
+          title: "Tipo de arquivo não suportado",
+          description: "Apenas arquivos PDF e ZIP são permitidos",
+          variant: "destructive",
+        });
+        return;
+      }
+
+      setSelectedAttachment(file);
+    }
+  };
+
   const handleKeyDown = (e: React.KeyboardEvent) => {
     if (e.key === 'Enter' && !e.shiftKey) {
       e.preventDefault();
@@ -312,6 +435,23 @@ export function ChatArea({ conversationId, onConversationCreated }: ChatAreaProp
               </Button>
             </div>
           )}
+
+          {selectedAttachment && (
+            <div className="mb-4 relative inline-block">
+              <div className="flex items-center gap-2 p-2 bg-muted rounded border">
+                <Paperclip className="h-4 w-4" />
+                <span className="text-sm truncate max-w-xs">{selectedAttachment.name}</span>
+                <Button
+                  size="sm"
+                  variant="ghost"
+                  className="h-6 w-6 rounded-full p-0"
+                  onClick={() => setSelectedAttachment(null)}
+                >
+                  ×
+                </Button>
+              </div>
+            </div>
+          )}
           
           <div className="flex gap-2">
             <div className="flex gap-1">
@@ -329,6 +469,22 @@ export function ChatArea({ conversationId, onConversationCreated }: ChatAreaProp
                 disabled={isLoading}
               >
                 <ImageIcon className="h-4 w-4" />
+              </Button>
+              
+              <input
+                ref={attachmentInputRef}
+                type="file"
+                accept=".pdf,.zip"
+                onChange={handleAttachmentSelect}
+                className="hidden"
+              />
+              <Button
+                size="sm"
+                variant="outline"
+                onClick={() => attachmentInputRef.current?.click()}
+                disabled={isLoading}
+              >
+                <Paperclip className="h-4 w-4" />
               </Button>
             </div>
 
